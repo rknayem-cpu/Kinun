@@ -1,0 +1,34 @@
+<%- include('partials/header') %>
+
+<div class="container mx-auto p-4 text-white">
+    <h1 class="text-2xl font-bold mb-6">Order Details</h1>
+    
+    <!-- Order Info -->
+    <div class="mb-8">
+        <p><strong>Order ID:</strong> <%= order._id %></p>
+        <p><strong>Total:</strong> ৳<%= order.total %></p>
+        <p><strong>Date:</strong> <%= new Date(order.createdAt).toLocaleDateString() %></p>
+    </div>
+    
+    <!-- QR Code Display -->
+    <div class="bg-gray-100 p-6 rounded-lg text-center">
+        <h3 class="text-lg font-bold mb-3">Scan QR Code</h3>
+        <img src="<%= qrCode %>" 
+             alt="Order QR Code" 
+             class="w-48 h-48 mx-auto mb-3">
+        <p class="text-sm text-gray-600">Contains order details</p>
+    </div>
+    
+    <!-- Items List -->
+    <div class="mt-8">
+        <h2 class="text-xl font-bold mb-4">Items</h2>
+        <% order.cart.forEach(item => { %>
+            <div class="flex justify-between p-3 bg-gray-800 rounded mb-2">
+                <span><%= item.name || 'Item' %></span>
+                <span>x<%= item.quantity %></span>
+            </div>
+        <% }) %>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

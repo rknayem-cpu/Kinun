@@ -1,0 +1,67 @@
+<%- include('partials/header') %>
+
+<form method="post" action="/add" class="max-w-lg mx-auto p-6 space-y-6 text-gray-100 rounded-xl">
+    <h1 class='text-3xl mt-2 text-center'>Add Product</h1>
+    
+    <div class="space-y-2">
+        <label class="block font-medium">Name</label>
+        <input type="text" name="name" required
+            class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Enter name">
+    </div>
+
+    <div class="space-y-2">
+        <label class="block font-medium">Image URL</label>
+        <input type="text" name="imgUrl" required
+            class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Enter image URL">
+    </div>
+
+    <div class="space-y-2">
+        <label class="block font-medium">Bio</label>
+        <textarea name="bio"
+            class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Enter bio" rows="3"></textarea>
+    </div>
+
+    <div class="space-y-3">
+        <label class="block font-medium">Category</label>
+        <div class="flex gap-4">
+            <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="radio" name="category" value="Brand" class="text-blue-500" checked>
+                <span>Brand</span>
+            </label>
+            <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="radio" name="category" value="Normal" class="text-blue-500">
+                <span>Normal</span>
+            </label>
+            <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="radio" name="category" value="Exclusive" class="text-blue-500">
+                <span>Exclusive</span>
+            </label>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-2 relative top-5 md:top-0">
+            <label class="block font-medium">Price</label>
+            <input type="number" name="price" required
+                class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="$">
+        </div>
+        <div class="space-y-2">
+            <label class="block font-medium">Current Price <span class="text-gray-400 text-sm">(optional)</span></label>
+            <input type="number" name="current"
+                class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="$">
+        </div>
+    </div>
+    
+    <div class="space-y-2 w-full">
+        <input type="submit"
+            class="w-full p-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg cursor-pointer transition"
+            value="Add Product">
+    </div>
+</form>
+
+<%- include('partials/footer') %>
