@@ -1,7 +1,7 @@
 <%- include('partials/header', {title: 'Track Order'}) %>
 
 <main class="min-h-screen bg-gradient-to-b from-gray-900 to-black p-4">
-    <div class="max-w-md mx-auto">
+    <div class="max-w-4xl mx-auto">
         <!-- Header -->
         <div class="text-center mb-8">
             <h1 class="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">
@@ -20,14 +20,16 @@
                        required>
                 
                 <button type="submit" 
-                        class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
+                        class="w-full cursor-pointer  bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
                     🔍 Track Now
                 </button>
             </form>
         </div>
 
         <!-- Results -->
-        <div id="results" class="hidden bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 shadow-xl animate-fadeIn">
+        <div id="results" class="hidden bg-gray-800/50 
+        backdrop-blur-sm border border-gray-700 
+        rounded-2xl p-6 shadow-xl animate-fadeIn ">
             <div id="orderDetails" class="text-white"></div>
             <div id="error" class="hidden text-red-400 text-center p-4 bg-red-500/10 rounded-xl"></div>
         </div>
@@ -88,7 +90,9 @@
       <p class="font-mono font-bold relative w-[50%]">${order._id}</p>
   </div>
                             
-                            <div class="grid grid-cols-2  gap-4">
+                            <div class="grid
+                             grid-cols-2 
+                               gap-4">
                                 
                                 
                                 <div>
