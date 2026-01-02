@@ -789,11 +789,59 @@ router.post('/order-track', async (req, res) => {
     } catch (error) {
         res.json({
             status: 500,
-            message: '!No order found'
+            message: 'No order found!'
         });
     }
 });
 
+
+
+
+// AJAX Search API
+router.get('/api/search', async (req, res) => {
+    try {
+        const { q, category } = req.query;
+        
+        let searchQuery = {};
+        
+        if (q) {
+            searchQuery.name = { $regex: q, $options: 'i' };
+        }
+        
+        if (category && category !== 'all') {
+            searchQuery.category = category;
+        }
+        
+        const products = await Post.find(searchQuery).limit(20);
+        
+        res.json({
+            success: true,
+            count: products.length,
+            products: products
+        });
+        
+    } catch (error) {
+        console.error('Search error:', error);
+        res.status(500).json({ success: false, error: 'Server error' });
+    }
+});
+
+// Get all categories for dropdown
+router.get('/api/categories', async (req, res) => {
+    try {
+        const categories = await Post.distinct('category');
+        res.json({ success: true, categories });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Server error' });
+    }
+});
+
+
+router.get('/search',(req,res)=>{
+
+res.render('search')
+
+})
 
 
 

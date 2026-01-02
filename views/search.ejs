@@ -1,0 +1,211 @@
+<%- include('partials/header', {title: 'Search Products'}) %>
+
+<div class="min-h-screen bg-gradient-to-br 
+from-gray-900 via-black to-gray-900 p-4">
+    <div class="max-w-4xl mx-auto">
+        <!-- Search Header -->
+        <div class="text-center mb-10">
+            <h1 class="text-3xl font-bold text-white mb-2">Instant Search</h1>
+            <p class="text-gray-400">Find products in real-time</p>
+        </div>
+
+        <!-- Search Box -->
+        <div class="bg-gray-800/50 backdrop-blur-sm
+         border border-gray-700 rounded-2xl p-4 mb-8 shadow-xl">
+            <div class="flex flex-col md:flex-row gap-4 mb-6">
+                <!-- Search Input -->
+                <div class="flex-1 relative group">
+                    <input type="text" 
+                           id="searchInput"
+                           placeholder="What are you looking for?"
+                           class="w-full p-3 pl-12 bg-gray-900 border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-green-500 focus:ring-2 focus:ring-green-500/30 outline-none transition">
+                    <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-hover:text-green-400 transition">
+                        🔍
+                    </div>
+                </div>
+                
+                <!-- Category -->
+                <select id="categorySelect" 
+                        class="p-3 bg-gray-900 border-2 border-gray-700 rounded-xl text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 outline-none">
+                    <option value="all">All Categories</option>
+                </select>
+            </div>
+            
+            <!-- Search Button -->
+            <button id="searchBtn" 
+                    class="relative w-full 
+                    bg-gradient-to-r from-green-500 
+                    to-emerald-600 hover:from-green-600
+                     hover:to-emerald-700 text-white font-bold 
+                     py-3 px-6 rounded-xl transition-all duration-300 hover:scale-[1.02] group overflow-hidden">
+                <span id="searchText" class="flex items-center justify-center gap-2">
+                    <span>Search Now</span>
+                    <i class="fas fa-search"></i>
+                </span>
+                <div id="searchLoading" class="hidden
+                 absolute inset-0 flex items-center 
+                 justify-center bg-gradient-to-r 
+                 from-green-600 to-emerald-700 p-3">
+                    <div class="flex items-center p-3 gap-2">
+                        <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        <span>Searching...</span>
+                    </div>
+                </div>
+            </button>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="hidden text-center py-12">
+            <div class="relative inline-block">
+                <div class="w-16 h-16 border-4 border-gray-700/50 rounded-full"></div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+            </div>
+            <p class="mt-4 text-gray-400">Finding matching products...</p>
+        </div>
+
+        <!-- Results Grid -->
+        <div id="resultsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Results will appear here -->
+        </div>
+
+        <!-- Empty States -->
+        <div id="emptyState" class="text-center relative bottom-12 py-12">
+            <div class="inline-block p-8 bg-gray-800/30 rounded-2xl border-2 border-dashed border-gray-700/50 mb-6">
+                <div class="text-5xl mb-4">✨</div>
+                <h3 class="text-xl font-bold text-white mb-2">Ready to Search</h3>
+                <p class="text-gray-400">Enter product name and click search</p>
+            </div>
+        </div>
+
+        <div id="noResults" class="hidden text-center py-12">
+            <div class="inline-block p-8 bg-gray-800/30 rounded-2xl border border-gray-700/30 mb-6">
+                <div class="text-5xl mb-4">😕</div>
+                <h3 class="text-xl font-bold text-white mb-2">No Products Found</h3>
+                <p class="text-gray-400">Try different keywords or category</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const categorySelect = document.getElementById('categorySelect');
+    const searchBtn = document.getElementById('searchBtn');
+    const searchText = document.getElementById('searchText');
+    const searchLoading = document.getElementById('searchLoading');
+    const resultsGrid = document.getElementById('resultsGrid');
+    const loading = document.getElementById('loading');
+    const emptyState = document.getElementById('emptyState');
+    const noResults = document.getElementById('noResults');
+    
+    // Load categories
+    loadCategories();
+    
+    // Search on button click
+    searchBtn.addEventListener('click', performSearch);
+    
+    // Search on Enter key
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') performSearch();
+    });
+    
+    // Auto-search after typing
+    
+    // Search function
+    async function performSearch() {
+        const query = searchInput.value.trim();
+        const category = categorySelect.value;
+        
+        // Hide states
+        emptyState.classList.add('hidden');
+        noResults.classList.add('hidden');
+        resultsGrid.innerHTML = '';
+        
+        if (!query && category === 'all') return;
+        
+        // Show loading states
+        searchText.classList.add('hidden');
+        searchLoading.classList.remove('hidden');
+        loading.classList.remove('hidden');
+        
+        try {
+            // Build search params
+            const params = new URLSearchParams();
+            if (query) params.append('q', query);
+            if (category !== 'all') params.append('category', category);
+            
+            // Fetch results
+            const response = await fetch(`/api/search?${params}`);
+            const data = await response.json();
+            
+            // Hide loading
+            searchText.classList.remove('hidden');
+            searchLoading.classList.add('hidden');
+            loading.classList.add('hidden');
+            
+            if (data.success && data.products.length > 0) {
+                displayProducts(data.products);
+            } else {
+                noResults.classList.remove('hidden');
+            }
+            
+        } catch (error) {
+            console.error('Search error:', error);
+            searchText.classList.remove('hidden');
+            searchLoading.classList.add('hidden');
+            loading.classList.add('hidden');
+            resultsGrid.innerHTML = '<p class="text-red-400 text-center col-span-3">Search failed</p>';
+        }
+    }
+    
+    // Display products
+    function displayProducts(products) {
+        resultsGrid.innerHTML = products.map(product => `
+            <div class="group bg-gray-800/50 border border-gray-700 rounded-xl overflow-hidden hover:border-green-500/50 hover:shadow-xl transition-all duration-300">
+                <a href="/products/${product._id}" class="block">
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="${product.imgUrl}" 
+                             alt="${product.name}"
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute top-3 left-3 bg-gray-900/80 text-green-400 text-xs px-3 py-1 rounded-full">
+                            ${product.category}
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-white group-hover:text-green-400 transition mb-2 line-clamp-1">${product.name}</h3>
+                        <div class="flex items-center justify-between">
+                            <span class="text-2xl font-bold text-green-400">৳${product.price}</span>
+                            <button class="opacity-0 group-hover:opacity-100 bg-green-500 hover:bg-green-600 p-2 rounded-full transition">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        `).join('');
+    }
+    
+    // Load categories
+    async function loadCategories() {
+        try {
+            const response = await fetch('/api/categories');
+            const data = await response.json();
+            
+            if (data.success) {
+                categorySelect.innerHTML += data.categories.map(cat => 
+                    `<option value="${cat}">${cat}</option>`
+                ).join('');
+            }
+        } catch (error) {
+            console.error('Failed to load categories:', error);
+        }
+    }
+});
+</script>
+
+<%- include('partials/footer') %>
