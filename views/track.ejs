@@ -1,0 +1,170 @@
+<%- include('partials/header', {title: 'Track Order'}) %>
+
+<main class="min-h-screen bg-gradient-to-b from-gray-900 to-black p-4">
+    <div class="max-w-md mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">
+                📦 Track Order
+            </h1>
+            <p class="text-gray-400 mt-2">Enter Order ID to check status</p>
+        </div>
+
+        <!-- Track Form -->
+        <div class="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 mb-8 shadow-xl">
+            <form id="trackForm" class="space-y-4">
+                <input type="text" 
+                       id="orderId" 
+                       placeholder="Paste Order ID here..."
+                       class="w-full p-4 bg-gray-900 border-2 border-gray-700 rounded-xl text-white focus:border-green-500 focus:ring-2 focus:ring-green-500/30 outline-none transition"
+                       required>
+                
+                <button type="submit" 
+                        class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
+                    🔍 Track Now
+                </button>
+            </form>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="hidden bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 shadow-xl animate-fadeIn">
+            <div id="orderDetails" class="text-white"></div>
+            <div id="error" class="hidden text-red-400 text-center p-4 bg-red-500/10 rounded-xl"></div>
+        </div>
+    </div>
+</main>
+
+<script>
+    document.getElementById('trackForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const orderId = document.getElementById('orderId').value.trim();
+        const results = document.getElementById('results');
+        const orderDetails = document.getElementById('orderDetails');
+        const error = document.getElementById('error');
+
+        if (!orderId) return;
+
+        results.classList.remove('hidden');
+        orderDetails.innerHTML = '<div class="text-center"><div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-green-500"></div><p class="mt-2 text-gray-400">Searching...</p></div>';
+        error.classList.add('hidden');
+
+        try {
+            const response = await fetch('/order-track', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ productId: orderId })
+            });
+
+            const result = await response.json();
+
+            if (result.status === 200) {
+                const order = result.order;
+                const date = new Date(order.createdAt).toLocaleDateString('en-US', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+
+                // Status colors
+                const statusColors = {
+                    'pending': 'text-yellow-400',
+                    'processing': 'text-blue-400',
+                    'shipped': 'text-purple-400',
+                    'delivered': 'text-green-400',
+                    'cancelled': 'text-red-400'
+                };
+                const statusClass = statusColors[order.status] || 'text-gray-400';
+
+                orderDetails.innerHTML = `
+                    <h2 class="text-2xl font-bold mb-6 text-center">Order Found ✅</h2>
+                    
+                    <div class="space-y-2">
+                        <!-- Order Info -->
+                        <div class="bg-gray-900/50 rounded-xl p-5">
+                            
+                            
+                            <div>
+      <p class="text-gray-400 text-sm">Order ID</p>
+      <p class="font-mono font-bold relative w-[50%]">${order._id}</p>
+  </div>
+                            
+                            <div class="grid grid-cols-2  gap-4">
+                                
+                                
+                                <div>
+                                    <p class="text-gray-400 text-sm">Date</p>
+                                    <p>${date}</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-400 text-sm">Status</p>
+                                    <p class="font-bold ${statusClass}">${order.status.toUpperCase()}</p>
+                                </div>
+                                
+                                <div>
+            <p class="text-gray-400 text-sm">Payment</p>
+            <p class="text-sm font-bold ">Cash on delivery</p>
+        </div>
+                                
+                                
+                                
+                                <div>
+                                    <p class="text-gray-400 text-sm">Total</p>
+                                    <p class="text-xl font-bold text-green-400">৳${order.total}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Items -->
+                        <div>
+                            <h3 class="font-bold mb-3 flex items-center">
+                                <span class="mr-2">🛒</span> Order Items
+                            </h3>
+                            <div class="bg-gray-900/30 rounded-lg p-4">
+                                ${order.cart.map(item => `
+                                    <div class="flex justify-between items-center py-2 border-b border-gray-800 last:border-0">
+                                        <div>
+                                            <p class="font-medium">${item.name}</p>
+                                            <p class="text-sm text-gray-400">Qty: ${item.quantity}</p>
+                                        </div>
+                                        <p class="text-green-400 font-bold">৳${item.price}</p>
+                                    </div>
+                                `).join('')}
+        <div class="flex justify-between"><p>Delivery charge</p><p>৳60</p></div>
+        <div class="flex mt-2 pt-2   border-t border-gray-400 justify-between"><p>Total</p><p>৳${order.total}</p></div>
+                            </div>
+                        </div>
+
+                        <!-- Contact -->
+                        <div class="bg-gray-900/50 rounded-xl p-5">
+                            <h3 class="font-bold mb-3 flex items-center">
+                                <span class="mr-2">📞</span> Contact Info
+                            </h3>
+                            <p class="mb-2"><span class="text-gray-400">Phone:</span> ${order.mobile}</p>
+                            <p><span class="text-gray-400">Address:</span> ${order.address}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                orderDetails.innerHTML = '';
+                error.textContent = result.message;
+                error.classList.remove('hidden');
+            }
+        } catch {
+            orderDetails.innerHTML = '';
+            error.textContent = '!No order found. Try again.';
+            error.classList.remove('hidden');
+        }
+    });
+</script>
+
+<style>
+    .animate-fadeIn {
+        animation: fadeIn 0.5s ease-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<%- include('partials/footer') %>

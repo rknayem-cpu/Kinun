@@ -754,6 +754,50 @@ router.post('/cartin/:productId', async (req, res) => {
 
 
 
+// GET route for tracking page
+router.get('/order-track', (req, res) => {
+    res.render('track', { title: 'Track Order' });
+});
+
+// POST route for tracking order
+router.post('/order-track', async (req, res) => {
+    try {
+        const { productId } = req.body;
+
+        if (!productId) {
+            return res.json({
+                status: 400,
+                message: 'Order ID is required'
+            });
+        }
+
+        const order = await Order.findOne({ _id: productId });
+
+        if (!order) {
+            return res.json({
+                status: 404,
+                message: 'No order found with this ID'
+            });
+        }
+
+        res.json({
+            status: 200,
+            message: 'Order found successfully',
+            order: order
+        });
+
+    } catch (error) {
+        res.json({
+            status: 500,
+            message: '!No order found'
+        });
+    }
+});
+
+
+
+
+
 
 // Logout
 router.get('/logout', (req, res) => {
