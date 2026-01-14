@@ -21,14 +21,14 @@
                 <div class="rounded-2xl overflow-hidden mb-4 shadow-2xl">
                     <img src="<%= post.imgUrl || '/images/default-product.jpg' %>" 
                          alt="<%= post.name %>"
-                         class="w-full h-auto max-h-[500px] object-cover hover:scale-105 transition-transform duration-500"
+                         class="w-full h-auto max-h-[500px]  hover:scale-105 transition-transform duration-500"
                          id="mainImage">
                 </div>
 
                 <!-- Image Gallery (if you have multiple images) -->
                 <div class="flex gap-3 overflow-x-auto py-2">
                     <img src="<%= post.imgUrl %>" 
-                         class="w-20 h-20 object-cover rounded-lg cursor-pointer border-2 border-green-500"
+                         class="w-20 h-20 object-cover  rounded-lg cursor-pointer border-2 border-green-500"
                          onclick="changeImage(this.src)">
                     <!-- Add more images if available -->
                 </div>
@@ -67,7 +67,7 @@
                 <!-- Description -->
                 <div class="mb-8">
                     <h3 class="text-xl font-semibold mb-3 text-white">Description</h3>
-                    <p class="text-gray-300 leading-relaxed">
+                    <p class="text-gray-300 text-xl md:text-2xl  leading-relaxed">
                         <%= post.bio || 'High quality product with premium features. Perfect for your needs.' %>
                     </p>
                 </div>
@@ -84,7 +84,7 @@
 <a 
 onclick="addToCartSimple('<%= post._id %>', this)"
  class="mb-8 block">    <button
-                                class="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-[1.02]">
+                                class="flex-1 cursor-pointer bg-gradient-to-r from-red-500 to-red-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-[1.02]">
                             <div class="flex items-center justify-center">
                                 <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>

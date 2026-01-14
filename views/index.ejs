@@ -1,89 +1,84 @@
 <%- include('partials/header', {title: 'Home Page'}) %>
 
+
+ <%- include('partials/hero') %>
+
 <main class="min-h-screen bg-gradient-to-b from-gray-900 to-black p-2 md:p-6">
-    <!-- Hero Scroller -->
-    <section class="mb-12 relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-red-600/10 z-0"></div>
-        <div class="relative z-10">
-            <div class="flex justify-between items-center mb-6 px-2 md:px-4">
-                <h2 class="text-2xl md:text-3xl font-bold text-white">Featured Products</h2>
-                <div class="flex space-x-2">
-                    <button id="pauseBtn" class="bg-gray-800 hover:bg-gray-700 text-white p-2 rounded-full transition">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                        </svg>
-                    </button>
-                    <button id="playBtn" class="bg-orange-600 hover:bg-orange-500 text-white p-2 rounded-full transition">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="overflow-hidden py-4">
-                <div id="scroller" class="flex gap-4 md:gap-6"></div>
-            </div>
-            
-             <% 
-                const images = [
-                    'https://images.unsplash.com/photo-1541140532154-b024d705b90a?w=600&h=400&fit=crop&auto=format',
-                    'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=600&h=400&fit=crop&auto=format',
-                    'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&h=400&fit=crop&auto=format',
-                    'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=600&h=400&fit=crop&auto=format'
-                ];
-            %>
-            
-            
-            <div class="flex justify-center mt-6 space-x-2">
-                <% images.forEach((_, index) => { %>
-                    <div class="scroller-dot w-2 h-2 rounded-full bg-gray-600 transition-all duration-300 <%= index === 0 ? 'bg-orange-500 w-4' : '' %>"></div>
-                <% }) %>
-            </div>
-        </div>
-    </section>
 
     <!-- Products Section -->
+    <%
+        if(posts && posts.length > 0) {
+            // 1. Reverse the posts array
+            const reversedPosts = [...posts].reverse();
+
+            // 2. Group posts by category
+            const categories = {};
+            reversedPosts.forEach(post => {
+                if (!categories[post.category]) {
+                    categories[post.category] = [];
+                }
+                categories[post.category].push(post);
+            });
+
+            // 3. Initialize limit per category (10 initially)
+            let limitPerCategory = 10;
+    %>
+
     <section class="mb-12">
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 px-2 md:px-4">
             <h2 class="text-2xl md:text-3xl font-bold text-white mb-4 md:mb-0">Our Products</h2>
             <div class="flex items-center space-x-4">
                 <span class="text-gray-300 hidden md:block">Sort by:</span>
                 <select id="sortSelect" class="bg-gray-800 cursor-pointer text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500">
-                    <option class="cursor-pointer"    value="featured">Featured</option>
-                    <option class="cursor-pointer"    value="price-low">Price: Low to High</option>
-                    <option class="cursor-pointer"    value="price-high">Price: High to Low</option>
-                    <option class="cursor-pointer"    value="name">Name A-Z</option>
+                    <option class="cursor-pointer" value="featured">Featured</option>
+                    <option class="cursor-pointer" value="price-low">Price: Low to High</option>
+                    <option class="cursor-pointer" value="price-high">Price: High to Low</option>
+                    <option class="cursor-pointer" value="name">Name A-Z</option>
                 </select>
             </div>
         </div>
 
-        <div id="items" class="grid grid-cols-2  
-        sm:grid-cols-3 md:grid-cols-3 
-        lg:grid-cols-3 xl:grid-cols-4 gap-2  md:gap-6 px-2 md:px-0">
-            <% if(posts && posts.length > 0) { %>
-                <% posts.forEach(function(post, index) { %>
+        <!-- Display products by category -->
+        <% Object.keys(categories).forEach((category, catIndex) => {
+            const categoryProducts = categories[category];
+            const displayedProducts = categoryProducts.slice(0, limitPerCategory);
+        %>
+
+        <div class="mb-12">
+            <div class="flex items-center justify-between mb-6 px-2 md:px-4">
+                <h3 class="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
+                    <span class="bg-gradient-to-r from-orange-600 to-red-600 p-2 rounded-lg">
+                        <i class="fas fa-tag"></i>
+                    </span>
+                    <%= category %>
+                    <span class="text-sm text-gray-400 bg-gray-800 px-3 py-1 rounded-full">
+                        <%= categoryProducts.length %> products
+                    </span>
+                </h3>
+            </div>
+
+            <div id="category-<%= catIndex %>" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-6 px-2 md:px-0">
+                <% displayedProducts.forEach(function(post, index) { %>
                     <div class="group bg-gray-800/50 backdrop-blur-sm rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-gray-700 hover:border-orange-500/50">
                         <div class="relative overflow-hidden">
-                            <img class="w-full h-44 md:h-64 object-cover group-hover:scale-110 transition-transform duration-500" src="<%= post.imgUrl %>" alt="<%= post.name %>" loading="lazy">
+                            <img class="w-full h-44 md:h-64 group-hover:scale-110 transition-transform duration-500" src="<%= post.imgUrl %>" alt="<%= post.name %>" loading="lazy">
                             <div class="absolute top-3 right-3 bg-gray-900/80 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1 rounded-full">
                                 <%= post.category %>
                             </div>
                             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         </div>
-                        
+
                         <div class="p-3 md:p-5 flex flex-col">
                             <h3 class="text-white font-semibold text-lg mb-0 line-clamp-1"><%= post.name %></h3>
-                            
-                            <div class="flex items-center
-                             justify-between ">
+
+                            <div class="flex items-center justify-between">
                                 <div>
                                     <p class="text-green-400 text-xl font-bold">৳<%= post.price %></p>
                                     <% if(post.originalPrice) { %>
                                         <p class="text-gray-500 text-sm line-through">৳<%= post.originalPrice %></p>
                                     <% } %>
                                 </div>
-                                
+
                                 <div class="flex space-x-2">
                                     <a href='/products/<%= post._id %>' class="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded-full transition">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -93,141 +88,87 @@
                                     </a>
                                 </div>
                             </div>
-                            
-                            
-                            
+
                             <% if (isLoggedIn) { %>
-<!-- Simple & Clean Version -->
-
-<a onclick="addToCartSimple('<%= post._id %>', this)"
-     
-     class="w-full text-center cursor-pointer
-                              bg-gradient-to-r from-orange-600 to-red-600
-                              hover:from-orange-500 hover:to-red-500
-                               text-white font-semibold py-2 px-3 rounded-xl mt-4 transition-all duration-300 transform hover:shadow-lg hover:shadow-orange-500/30"
-     
-     
-     >
-
-
-
-
-    <i class="fas fa-shopping-cart group-hover:scale-110 transition-transform"></i>
-    <span>Add to Cart</span>
-</a>
-
-<script>
-function addToCartSimple(productId, button) {
-    // Button effect (optional)
-    button.style.transform = 'scale(0.98)';
-    
-    // Show SweetAlert
-    Swal.fire({
-        icon: 'success',
-        title: '<div class="flex items-center gap-2 justify-center"><i class="fas fa-check-circle text-green-500 text-2xl"></i><span>Added to Cart!</span></div>',
-        showConfirmButton: false,
-        timer: 2000,
-        timerProgressBar: true,
-        background: '#ffffff',
-        color: '#1f2937',
-        width: '350px',
-        padding: '1.5rem',
-        customClass: {
-            popup: 'rounded-2xl shadow-2xl'
-        }
-    }).then(() => {
-        // Redirect after alert closes
-        
-        window.location.href = `/cart/${productId}`;
-        
-    });
-}
-</script>
-
-
-            <% } else { %>
-
-
-<span onclick='salert()'
-                             class="w-full text-center cursor-pointer
-                              bg-gradient-to-r from-orange-600 to-red-600
-                              hover:from-orange-500 hover:to-red-500
-                               text-white font-semibold py-2 px-3 rounded-xl mt-4 transition-all duration-300 transform hover:shadow-lg hover:shadow-orange-500/30">
-                                Add to Cart
-                            </span>
-
-
-            <% } %>
-                            
-                            
-                            
-                            
+                                <a onclick="addToCartSimple('<%= post._id %>', this)"
+                                   class="w-full text-center cursor-pointer
+                                          bg-gradient-to-r from-orange-600 to-red-600
+                                          hover:from-orange-500 hover:to-red-500
+                                          text-white font-semibold py-2 px-3 rounded-xl mt-4 transition-all duration-300 transform hover:shadow-lg hover:shadow-orange-500/30">
+                                    <i class="fas fa-shopping-cart group-hover:scale-110 transition-transform"></i>
+                                    <span>Add to Cart</span>
+                                </a>
+                            <% } else { %>
+                                <span onclick='salert()'
+                                     class="w-full text-center cursor-pointer
+                                            bg-gradient-to-r from-orange-600 to-red-600
+                                            hover:from-orange-500 hover:to-red-500
+                                            text-white font-semibold py-2 px-3 rounded-xl mt-4 transition-all duration-300 transform hover:shadow-lg hover:shadow-orange-500/30">
+                                    Add to Cart
+                                </span>
+                            <% } %>
                         </div>
                     </div>
                 <% }) %>
-            <% } else { %>
-                <div class="col-span-full flex flex-col items-center justify-center py-16 px-4 text-center">
-                    <div class="w-24 h-24 mb-6 text-gray-600">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                        </svg>
-                    </div>
-                    <h3 class="text-2xl font-bold text-white mb-2">No Products Available</h3>
-                    <p class="text-gray-400 max-w-md">Check back soon for our latest collection of premium products.</p>
+            </div>
+
+            <% if (categoryProducts.length > displayedProducts.length) { %>
+                <div class="text-center mt-6">
+                    <button onclick="loadMoreCategory('<%= catIndex %>', '<%= category %>')"
+                            class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-full transition-all duration-300 border border-gray-700 hover:border-orange-500">
+                        Load More in <%= category %> (+<%= categoryProducts.length - displayedProducts.length %>)
+                    </button>
                 </div>
             <% } %>
         </div>
-        
-        <% if(posts && posts.length > 0) { %>
-            <div class="flex justify-center mt-12">
-                <button id="loadMore" class="bg-gray-800 cursor-pointer hover:bg-gray-700 text-white font-semibold py-3 px-8 rounded-full transition-all duration-300 border border-gray-700 hover:border-orange-500">
-                    Load More Products
-                </button>
-            </div>
-        <% } %>
+        <% }) %>
+
+        <div class="flex justify-center mt-12">
+            <button id="loadMoreAll"
+                    onclick="loadMoreAllCategories()"
+                    class="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-semibold py-3 px-8 rounded-full transition-all duration-300 border border-orange-500 hover:border-orange-400 shadow-lg hover:shadow-orange-500/30">
+                <i class="fas fa-sync-alt mr-2"></i> Load More in All Categories (+10 Each)
+            </button>
+        </div>
+
     </section>
+
+    <% } else { %>
+        <div class="col-span-full flex flex-col items-center justify-center py-16 px-4 text-center">
+            <div class="w-24 h-24 mb-6 text-gray-600">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-2">No Products Available</h3>
+            <p class="text-gray-400 max-w-md">Check back soon for our latest collection of premium products.</p>
+        </div>
+    <% } %>
 </main>
 
 <style>
-    /* Custom styles for enhanced appearance */
     .line-clamp-1 {
         overflow: hidden;
         display: -webkit-box;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 1;
     }
-    
-    .line-clamp-2 {
-        overflow: hidden;
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
-    }
-    
-    /* Custom scrollbar */
+
     ::-webkit-scrollbar {
         width: 8px;
         height: 8px;
     }
-    
+
     ::-webkit-scrollbar-track {
         background: rgba(255, 255, 255, 0.05);
         border-radius: 10px;
     }
-    
+
     ::-webkit-scrollbar-thumb {
         background: linear-gradient(to bottom, #f97316, #dc2626);
         border-radius: 10px;
     }
-    
-    /* Responsive breakpoints */
-    @media (min-width: 475px) {
-        .xs\:grid-cols-2 {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-    }
-    
-    /* Scroller animation enhancement */
+
     #scroller {
         will-change: transform;
         transition: transform 0.1s linear;
@@ -244,53 +185,50 @@ function addToCartSimple(productId, button) {
         'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=400&fit=crop&auto=format'
     ];
 
+    // Scroller functionality
     const scroller = document.getElementById('scroller');
     const playBtn = document.getElementById('playBtn');
     const pauseBtn = document.getElementById('pauseBtn');
-    const sortSelect = document.getElementById('sortSelect');
-    const loadMoreBtn = document.getElementById('loadMore');
-    
+
     let pos = 0;
     let paused = false;
     let animationId;
     const scrollSpeed = 1;
-    const scrollWidth = images.length * 280; // Adjusted for larger images
-    
-    // Create image elements with enhanced styling
+    const scrollWidth = images.length * 280;
+
+    // Create image elements
     images.concat(images).forEach((img, index) => {
         const container = document.createElement('div');
         container.className = 'relative flex-shrink-0 group cursor-pointer';
         container.style.width = '260px';
-        
+
         const imgEl = document.createElement('img');
         imgEl.src = img;
         imgEl.className = 'w-full h-72 md:h-80 object-cover rounded-2xl shadow-2xl group-hover:scale-105 transition-transform duration-500';
         imgEl.loading = 'lazy';
-        
+
         const overlay = document.createElement('div');
         overlay.className = 'absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300';
-        
+
         const text = document.createElement('div');
         text.className = 'absolute bottom-6 left-6 right-6 text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300';
         text.innerHTML = `
             <h3 class="font-bold text-xl mb-1">Featured Item ${(index % images.length) + 1}</h3>
             <p class="text-sm text-gray-200">Discover premium quality</p>
         `;
-        
+
         container.appendChild(imgEl);
         container.appendChild(overlay);
         container.appendChild(text);
         scroller.appendChild(container);
     });
-    
-    // Auto scroll animation with smooth easing
+
     function animateScroll() {
         if (!paused) {
             pos -= scrollSpeed;
             if (pos <= -scrollWidth) pos = 0;
             scroller.style.transform = `translateX(${pos}px)`;
-            
-            // Update active dot indicator
+
             const activeIndex = Math.floor(Math.abs(pos) / 280) % images.length;
             document.querySelectorAll('.scroller-dot').forEach((dot, index) => {
                 dot.classList.toggle('bg-orange-500', index === activeIndex);
@@ -300,23 +238,21 @@ function addToCartSimple(productId, button) {
         }
         animationId = requestAnimationFrame(animateScroll);
     }
-    
-    // Control buttons functionality
+
     playBtn.addEventListener('click', () => {
         paused = false;
         playBtn.classList.add('bg-orange-600');
         pauseBtn.classList.remove('bg-orange-600');
         pauseBtn.classList.add('bg-gray-800');
     });
-    
+
     pauseBtn.addEventListener('click', () => {
         paused = true;
         pauseBtn.classList.add('bg-orange-600');
         playBtn.classList.remove('bg-orange-600');
         playBtn.classList.add('bg-gray-800');
     });
-    
-    // Hover control for scroller
+
     scroller.addEventListener('mouseenter', () => {
         if (!paused) {
             playBtn.classList.remove('bg-orange-600');
@@ -324,7 +260,7 @@ function addToCartSimple(productId, button) {
         }
         paused = true;
     });
-    
+
     scroller.addEventListener('mouseleave', () => {
         if (pauseBtn.classList.contains('bg-orange-600')) {
             paused = false;
@@ -332,64 +268,95 @@ function addToCartSimple(productId, button) {
             playBtn.classList.add('bg-orange-600');
         }
     });
-    
+
     // Sort functionality
+    const sortSelect = document.getElementById('sortSelect');
     if (sortSelect) {
         sortSelect.addEventListener('change', function() {
-            const itemsContainer = document.getElementById('items');
-            const items = Array.from(itemsContainer.querySelectorAll('.group'));
-            
-            items.sort((a, b) => {
-                const priceA = parseFloat(a.querySelector('.font-bold').textContent.replace('৳', ''));
-                const priceB = parseFloat(b.querySelector('.font-bold').textContent.replace('৳', ''));
-                const nameA = a.querySelector('h3').textContent.toLowerCase();
-                const nameB = b.querySelector('h3').textContent.toLowerCase();
-                
-                switch(this.value) {
-                    case 'price-low':
-                        return priceA - priceB;
-                    case 'price-high':
-                        return priceB - priceA;
-                    case 'name':
-                        return nameA.localeCompare(nameB);
-                    default:
-                        return 0;
-                }
-            });
-            
-            // Reorder items with animation
-            items.forEach(item => {
-                item.style.opacity = '0';
-                item.style.transform = 'translateY(20px)';
-                setTimeout(() => {
-                    itemsContainer.appendChild(item);
-                    item.style.opacity = '1';
-                    item.style.transform = 'translateY(0)';
-                }, 50);
-            });
+            // This would need server-side implementation for proper sorting
+            // For now, just reload the page with sort parameter
+            window.location.href = `/?sort=${this.value}`;
         });
     }
-    
-    // Load more functionality
-    if (loadMoreBtn) {
-        loadMoreBtn.addEventListener('click', function() {
-            this.textContent = 'Loading...';
-            this.disabled = true;
-            
-            // Simulate loading more products
-            setTimeout(() => {
-                // In a real app, you would fetch more products from the server
-                this.textContent = 'No More Products';
-                this.classList.remove('hover:bg-gray-700', 'hover:border-orange-500');
-                this.classList.add('opacity-50', 'cursor-not-allowed');
-            }, 1500);
+
+    // Load more products functionality
+    let limitPerCategory = 10;
+
+    function loadMoreCategory(catIndex, category) {
+        const categoryDiv = document.getElementById(`category-${catIndex}`);
+        const loadMoreBtn = categoryDiv.parentElement.querySelector('button');
+
+        // Show loading state
+        const originalText = loadMoreBtn.innerHTML;
+        loadMoreBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Loading...';
+        loadMoreBtn.disabled = true;
+
+        // Simulate loading more products
+        setTimeout(() => {
+            // In real app, fetch more products from server
+            // For demo, we'll just increase the limit
+            limitPerCategory += 10;
+
+            // Reload the page with new limit (in real app, use AJAX)
+            window.location.href = `/?limit=${limitPerCategory}`;
+        }, 1000);
+    }
+
+    function loadMoreAllCategories() {
+        const loadMoreBtn = document.getElementById('loadMoreAll');
+
+        // Show loading state
+        const originalText = loadMoreBtn.innerHTML;
+        loadMoreBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Loading More Products...';
+        loadMoreBtn.disabled = true;
+
+        // Simulate loading
+        setTimeout(() => {
+            limitPerCategory += 10;
+            // Reload the page with new limit (in real app, use AJAX)
+            window.location.href = `/?limit=${limitPerCategory}`;
+        }, 1500);
+    }
+
+    // Cart functionality
+    function addToCartSimple(productId, button) {
+        button.style.transform = 'scale(0.98)';
+
+        Swal.fire({
+            icon: 'success',
+            title: '<div class="flex items-center gap-2 justify-center"><i class="fas fa-check-circle text-green-500 text-2xl"></i><span>Added to Cart!</span></div>',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            background: '#ffffff',
+            color: '#1f2937',
+            width: '350px',
+            padding: '1.5rem',
+            customClass: {
+                popup: 'rounded-2xl shadow-2xl'
+            }
+        }).then(() => {
+            window.location.href = `/cart/${productId}`;
         });
     }
-    
+
+    function salert() {
+        Swal.fire({
+            title: 'Login Required',
+            text: 'Please login to add items to cart',
+            icon: 'warning',
+            confirmButtonText: 'Login',
+            confirmButtonColor: '#f97316'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '/login';
+            }
+        });
+    }
+
     // Initialize
     animateScroll();
-    
-    // Pause animation when tab is not visible
+
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
             paused = true;
@@ -398,6 +365,4 @@ function addToCartSimple(productId, button) {
 </script>
 
 
-<%- include('partials/footer')%>
-
-
+<%- include('partials/footer') %>

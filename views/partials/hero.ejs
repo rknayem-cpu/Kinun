@@ -1,0 +1,152 @@
+<!-- Hero Scroller -->
+<section class="mb-5 relative overflow-hidden mt-5">
+    <div class="absolute inset-0 bg-transparent z-0"></div>
+    <div class="relative z-10">
+        <div class="flex justify-between items-center mb-2 px-2 md:px-4">
+            <h2 class="text-2xl md:text-3xl 
+            font-bold text-white">Featured Products</h2>
+            <div class="flex space-x-2">
+                <button id="pauseBtn" class="bg-gray-800 hover:bg-gray-700 text-white p-2 rounded-full transition">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <button id="playBtn" class="bg-orange-600 hover:bg-orange-500 text-white p-2 rounded-full transition">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="overflow-hidden py-4">
+            <div id="scroller" class="flex gap-4 md:gap-6"></div>
+        </div>
+
+        <%
+            const images = [
+                'https://images.unsplash.com/photo-1541140532154-b024d705b90a?w=600&h=400&fit=crop&auto=format',
+                'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=600&h=400&fit=crop&auto=format',
+                'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&h=400&fit=crop&auto=format',
+                'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=600&h=400&fit=crop&auto=format'
+            ];
+        %>
+
+        <div class="flex justify-center mt-6 space-x-2">
+            <% images.forEach((_, index) => { %>
+                <div class="scroller-dot w-2 h-2 rounded-full bg-gray-600 transition-all duration-300 <%= index === 0 ? 'bg-orange-500 w-4' : '' %>"></div>
+            <% }) %>
+        </div>
+    </div>
+</section>
+
+<script>
+    const images = [
+        'https://images.unsplash.com/photo-1541140532154-b024d705b90a?w=600&h=400&fit=crop&auto=format',
+        'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=600&h=400&fit=crop&auto=format',
+        'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&h=400&fit=crop&auto=format',
+        'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=600&h=400&fit=crop&auto=format',
+        'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&h=400&fit=crop&auto=format',
+        'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=400&fit=crop&auto=format'
+    ];
+
+    // Scroller functionality
+    const scroller = document.getElementById('scroller');
+    const playBtn = document.getElementById('playBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+
+    let pos = 0;
+    let paused = false;
+    let animationId;
+    const scrollSpeed = 1;
+    const scrollWidth = images.length * 280;
+
+    // Create image elements
+    images.concat(images).forEach((img, index) => {
+        const container = document.createElement('div');
+        container.className = 'relative flex-shrink-0 group cursor-pointer';
+        container.style.width = '260px';
+
+        const imgEl = document.createElement('img');
+        imgEl.src = img;
+        imgEl.className = 'w-full h-72 md:h-80 object-cover rounded-2xl shadow-2xl group-hover:scale-105 transition-transform duration-500';
+        imgEl.loading = 'lazy';
+
+        const overlay = document.createElement('div');
+        overlay.className = 'absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300';
+
+        const text = document.createElement('div');
+        text.className = 'absolute bottom-6 left-6 right-6 text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300';
+        text.innerHTML = `
+            <h3 class="font-bold text-xl mb-1">Featured Item ${(index % images.length) + 1}</h3>
+            <p class="text-sm text-gray-200">Discover premium quality</p>
+        `;
+
+        container.appendChild(imgEl);
+        container.appendChild(overlay);
+        container.appendChild(text);
+        scroller.appendChild(container);
+    });
+
+    function animateScroll() {
+        if (!paused) {
+            pos -= scrollSpeed;
+            if (pos <= -scrollWidth) pos = 0;
+            scroller.style.transform = `translateX(${pos}px)`;
+
+            const activeIndex = Math.floor(Math.abs(pos) / 280) % images.length;
+            document.querySelectorAll('.scroller-dot').forEach((dot, index) => {
+                dot.classList.toggle('bg-orange-500', index === activeIndex);
+                dot.classList.toggle('w-4', index === activeIndex);
+                dot.classList.toggle('w-2', index !== activeIndex);
+            });
+        }
+        animationId = requestAnimationFrame(animateScroll);
+    }
+
+    playBtn.addEventListener('click', () => {
+        paused = false;
+        playBtn.classList.add('bg-orange-600');
+        pauseBtn.classList.remove('bg-orange-600');
+        pauseBtn.classList.add('bg-gray-800');
+    });
+
+    pauseBtn.addEventListener('click', () => {
+        paused = true;
+        pauseBtn.classList.add('bg-orange-600');
+        playBtn.classList.remove('bg-orange-600');
+        playBtn.classList.add('bg-gray-800');
+    });
+
+    scroller.addEventListener('mouseenter', () => {
+        if (!paused) {
+            playBtn.classList.remove('bg-orange-600');
+            pauseBtn.classList.add('bg-orange-600');
+        }
+        paused = true;
+    });
+
+    scroller.addEventListener('mouseleave', () => {
+        if (pauseBtn.classList.contains('bg-orange-600')) {
+            paused = false;
+            pauseBtn.classList.remove('bg-orange-600');
+            playBtn.classList.add('bg-orange-600');
+        }
+    });
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            paused = true;
+        }
+    });
+
+    // Initialize
+    animateScroll();
+</script>
+
+<style>
+    #scroller {
+        will-change: transform;
+        transition: transform 0.1s linear;
+    }
+</style>
