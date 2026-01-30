@@ -847,6 +847,118 @@ res.render('search')
 
 
 
+// Get ALL orders without pagination
+router.get('/orders', async (req, res) => {
+    try {
+        // Get all orders
+        const orders = await Order.find({})
+            .populate('user', 'name email')
+            .populate('items.product', 'name price imgUrl')
+            .sort({ createdAt: -1 }); // Newest first
+
+        res.json({
+            success: true,
+            orders,
+            total: orders.length
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Get single order
+router.get('/orders/:id', async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id)
+            .populate('user', 'name email phone')
+            .populate('items.product');
+
+        if (!order) {
+            return res.status(404).json({ success: false, error: 'Order not found' });
+        }
+
+        res.json({ success: true, order });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Update order status
+router.put('/orders/:id/status',  async (req, res) => {
+    try {
+        const { status } = req.body;
+        
+        const order = await Order.findById(req.params.id);
+        if (!order) {
+            return res.status(404).json({ success: false, error: 'Order not found' });
+        }
+
+        order.status = status;
+        await order.save();
+
+        res.json({ 
+            success: true, 
+            message: 'Status updated',
+            order 
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Delete order
+router.delete('/orders/:id', async (req, res) => {
+    try {
+        const order = await Order.findByIdAndDelete(req.params.id);
+        
+        if (!order) {
+            return res.status(404).json({ success: false, error: 'Order not found' });
+        }
+
+        res.json({ 
+            success: true, 
+            message: 'Order deleted' 
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+
+
+
+router.get('/viewcategory',async (req,res)=>{
+
+const posts = await Post.find({})
+
+res.render('vcategory',{posts})
+
+})
+
+
+router.get('/admin/orders',async (req,res)=>{
+const orders = await Order.find({}).populate('cart userId')
+
+res.render('adminorder',{orders})
+})
+
+
+router.get('/status/:id', async (req, res) => {
+    try {
+        const id = req.params.id
+        const order = await Order.findByIdAndUpdate(id, {
+            status: 'processing'
+        }, { new: true })
+        
+        res.redirect('/admin/orders')
+    } catch (error) {
+        console.error(error)
+        res.status(500).send('Server Error')
+    }
+})
+
+
+
 // Logout
 router.get('/logout', (req, res) => {
     res.clearCookie('userId');

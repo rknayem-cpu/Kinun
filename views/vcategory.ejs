@@ -1,0 +1,248 @@
+<%- include('partials/header', {title: 'Home Page'}) %>
+
+<main class="min-h-screen bg-gradient-to-b from-gray-900 to-black p-4 md:p-6">
+    <% if(posts && posts.length > 0) { %>
+    <section class="mb-5">
+        <div class="flex flex-col md:flex-row justify-between mb-8">
+            <h2 class="text-3xl font-bold text-white">Our Products</h2>
+            <button onclick="loadAllMore()" 
+                    class="mt-4 md:mt-0 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-semibold px-6 py-2 rounded-lg transition-all">
+                 Load All Categories
+            </button>
+        </div>
+
+        <% 
+           const categories = {};
+           const reversedPosts = [...posts].reverse();
+           reversedPosts.forEach(post => {
+               categories[post.category] = categories[post.category] || [];
+               categories[post.category].push(post);
+           });
+           
+           const initialLimit = 1;
+        %>
+
+        <% Object.keys(categories).forEach((category, catIndex) => { 
+           const items = categories[category];
+        %>
+        <div class="mb-4">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                    <span class="bg-gradient-to-r from-orange-600 to-red-600 p-2 rounded-lg">
+                        <i class="fas fa-tag"></i>
+                    </span>
+                    <%= category %>
+                    <span class="text-sm text-gray-400 bg-gray-800 px-3 py-1 rounded-full">
+                        <%= items.length %> products
+                    </span>
+                </h3>
+            </div>
+
+            <div id="products-<%= catIndex %>" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                <% items.slice(0, initialLimit).forEach(post => { %>
+                <div class="group bg-gray-800/50 
+                backdrop-blur-sm rounded-xl 
+                overflow-hidden hover:shadow-xl 
+                transition-all duration-300 
+                hover:-translate-y-1">
+                    <div class="relative overflow-hidden">
+                        <img class="w-full h-42  
+                        group-hover:scale-105 transition-transform duration-500" 
+                             src="<%= post.imgUrl %>" alt="<%= post.name %>">
+                        <div class="absolute top-3 right-3">
+                            <a href='/products/<%= post._id %>' 
+                               class="bg-black/60 backdrop-blur-sm text-white p-2 rounded-full hover:bg-black/80 transition">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="p-2">
+                        <h3 class="text-white font-semibold 
+                        mb-0 truncate"><%= post.name %></h3>
+                        <p class="text-green-400 
+                        font-bold relative bottom-1 text-lg">৳<%= post.price %></p>
+                        <div class="flex gap-2 mt-1">
+                            <button onclick="addToCart('<%= post._id %>')"
+                                    class="flex-1 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white py-2 rounded-lg transition">
+                                <i class="fas fa-shopping-cart mr-2"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+
+            <% if (items.length > initialLimit) { %>
+            <div class="text-center mt-6">
+                <button onclick="loadMore(<%= catIndex %>,'<%= category %>')"
+                        class="load-more-btn bg-gray-800 hover:bg-gray-700 text-white px-6 py-2 rounded-lg transition-all hover:scale-105"
+                        data-cat="<%= catIndex %>"
+                        data-offset="<%= initialLimit %>">
+                    <i class="fas fa-chevron-down mr-2"></i>
+                    Load More (<%= items.length - initialLimit %>)
+                </button>
+            </div>
+            <% } %>
+        </div>
+        <% }) %>
+    </section>
+
+    <script>
+        // Store all products with better structure
+        const allProducts = {
+            <% Object.keys(categories).forEach((category, catIndex) => { %>
+            '<%= category %>': {
+                items: [
+                    <% categories[category].forEach((post, index) => { %>
+                    {
+                        _id: '<%= post._id %>',
+                        name: '<%= post.name %>'.replace(/'/g, "\\'"),
+                        price: '<%= post.price %>',
+                        imgUrl: '<%= post.imgUrl %>'
+                    }<%= index < categories[category].length - 1 ? ',' : '' %>
+                    <% }) %>
+                ],
+                loaded: <%= initialLimit %>,
+                total: <%= categories[category].length %>
+            }<%= catIndex < Object.keys(categories).length - 1 ? ',' : '' %>
+            <% }) %>
+        };
+
+        function loadMore(catIndex, category) {
+            const container = document.getElementById(`products-${catIndex}`);
+            const button = document.querySelector(`[data-cat="${catIndex}"]`);
+            const categoryData = allProducts[category];
+            
+            const nextItems = categoryData.items.slice(categoryData.loaded, categoryData.loaded + 4);
+            
+            nextItems.forEach(product => {
+                const html = `
+                    <div class="group bg-gray-800/50
+                     backdrop-blur-sm 
+                     rounded-xl 
+                     overflow-hidden 
+                     hover:shadow-xl 
+                     transition-all 
+                     duration-300 
+                     hover:-translate-y-1 animate-fadeIn">
+                        <div class="relative overflow-hidden">
+                            <img class="w-full h-42 object-cover group-hover:scale-105 transition-transform duration-500" 
+                                 src="${product.imgUrl}" alt="${product.name}">
+                            <div class="absolute top-3 right-3">
+                                <a href='/products/${product._id}' 
+                                   class="bg-black/60 backdrop-blur-sm text-white p-2 rounded-full hover:bg-black/80 transition">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="p-2">
+                            <h3 class="text-white font-semibold mb-1 truncate">${product.name}</h3>
+                            <p class="text-green-400 relative bottom-1 font-bold text-lg">৳${product.price}</p>
+                            <div class="flex gap-2 mt-1">
+                                <button onclick="addToCart('${product._id}')"
+                                        class="flex-1 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white py-2 rounded-lg transition">
+                                    <i class="fas fa-shopping-cart mr-2"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+
+            // Update state
+            categoryData.loaded += 4;
+            const remaining = categoryData.total - categoryData.loaded;
+            
+            // Update button
+            if (remaining <= 0) {
+                button.style.display = 'none';
+            } else {
+                button.innerHTML = `<i class="fas fa-chevron-down mr-2"></i> Load More (${remaining})`;
+                button.dataset.offset = categoryData.loaded;
+            }
+            
+            // Add animation
+            const newCards = container.querySelectorAll('.animate-fadeIn');
+            newCards.forEach(card => {
+                card.style.animation = 'fadeIn 0.5s ease-out';
+                setTimeout(() => card.classList.remove('animate-fadeIn'), 500);
+            });
+        }
+
+        function loadAllMore() {
+            // Load more from all categories
+            
+            setTimeout(()=>{
+            Object.keys(allProducts).forEach((category, catIndex) => {
+                const categoryData = allProducts[category];
+                if (categoryData.loaded < categoryData.total) {
+                    loadMore(catIndex, category);
+                }
+            });
+            
+            },1200)
+            
+            // Show success message
+            Swal.fire({
+                text: 'Loading More Products.....',
+                icon: 'loading',
+                timer: 1200,
+                showConfirmButton: false
+            });
+        }
+
+        function addToCart(productId) {
+            if (<%= !isLoggedIn %>) {
+                Swal.fire({
+                    title: 'Login Required',
+                    text: 'Please login to add items to cart',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Login',
+                    confirmButtonColor: '#f97316',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '/login';
+                    }
+                });
+                return;
+            }
+            
+            Swal.fire({
+                title: 'Added to Cart!',
+                icon: 'success',
+                timer: 1000,
+                showConfirmButton: false
+            }).then(() => {
+                window.location.href = `/cart/${productId}`;
+            });
+        }
+
+        // CSS for animation
+        const style = document.createElement('style');
+        style.textContent = `
+            .animate-fadeIn {
+                animation: fadeIn 0.5s ease-out;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+    <% } else { %>
+    <div class="text-center py-16">
+        <div class="w-20 h-20 mx-auto mb-4 text-gray-600">
+            <i class="fas fa-box-open text-5xl"></i>
+        </div>
+        <h3 class="text-2xl font-bold text-white mb-2">No Products Found</h3>
+        <p class="text-gray-400">Check back soon for new arrivals</p>
+    </div>
+    <% } %>
+</main>
+
+
+<%- include('partials/footer')%>

@@ -1,0 +1,63 @@
+<%- include('partials/header') %>
+
+<main class='p-4 max-w-2xl mx-auto'>
+  <% if(!orders?.length){ %>
+    <p class='text-center py-20 text-gray-500'>No orders</p>
+    <%- include('partials/footer') %>
+    <% return %>
+  <% } %>
+
+  <% orders.forEach(order=>{ %>
+    <div class='bg-white shadow rounded-lg p-4 mb-4'>
+      <!-- Header -->
+      <div class='flex justify-between mb-3'>
+        <span class='font-bold'>Order #<%= order._id.toString().slice(-6) %></span>
+        <span class='text-sm <%= order.status === "delivered" ? "text-green-600" : "text-yellow-600" %>'>
+          <%= order.status %>
+        </span>
+      </div>
+
+      <!-- Items -->
+      <% let total = 0 %>
+      <div class='mb-3'>
+        <% order.cart.forEach(item=>{ %>
+          <% total += item.price * item.quantity %>
+          <div class='flex items-center py-2 border-b'>
+            <% if(item.image){ %>
+              <img src="<%= item.image %>" class='w-12 h-12 object-cover rounded mr-3'>
+            <% } %>
+            <div class='flex-1'>
+              <p class='font-medium'><%= item.name %></p>
+              <div class='flex justify-between text-sm text-gray-600'>
+                <span>Qty: <%= item.quantity %> × ৳<%= item.price %></span>
+                <span class='font-semibold'>৳<%= item.price * item.quantity %></span>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+
+      <!-- Total -->
+      <div class='flex justify-between font-bold mb-3'>
+        <span>Total</span>
+        <span>৳<%= total %></span>
+      </div>
+
+      <!-- Contact -->
+      <div class='text-sm text-gray-600 mb-3'>
+        <p>📞 <%= order.mobile %></p>
+        <p>📍 <%= order.address %></p>
+      </div>
+
+      <!-- Confirm Button -->
+      <% if(order.status === "pending"){ %>
+        <a href="/status/<%= order._id %>" 
+                class='w-full block text-center  bg-green-600 
+                text-white py-2 rounded hover:bg-green-700'>
+          Confirm Order
+        </a>
+      <% } %>
+    </div>
+  <% }) %>
+</main>
+
