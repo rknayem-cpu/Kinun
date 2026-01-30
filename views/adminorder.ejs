@@ -1,17 +1,19 @@
 <%- include('partials/header') %>
 
-<main class='p-4 max-w-2xl mx-auto'>
-  <% if(!orders?.length){ %>
-    <p class='text-center py-20 text-gray-500'>No orders</p>
-    <%- include('partials/footer') %>
-    <% return %>
-  <% } %>
+<main class='p-4 max-w-full '>
+ 
+ <p  class='text-center text-3xl text-white mb-5'><%= orders.length %> Orders</p>
+ 
+ 
+
+<div class='grid grid-cols-1 md:grid-cols-3  xl: grid-cols-4 gap-4'>
+
 
   <% orders.forEach(order=>{ %>
     <div class='bg-white shadow rounded-lg p-4 mb-4'>
       <!-- Header -->
       <div class='flex justify-between mb-3'>
-        <span class='font-bold'>Order #<%= order._id.toString().slice(-6) %></span>
+        <span class='font-bold'>Order #<%= order._id %></span>
         <span class='text-sm <%= order.status === "delivered" ? "text-green-600" : "text-yellow-600" %>'>
           <%= order.status %>
         </span>
@@ -56,8 +58,28 @@
                 text-white py-2 rounded hover:bg-green-700'>
           Confirm Order
         </a>
+      <% } else{ %>
+      <div class="w-full flex justify-between gap-3">
+      <a href="/deliver/<%= order._id %>".
+                class='w-full block text-center  bg-orange-600
+                text-white py-2 rounded hover:bg-orange-700'>
+          Deliver order
+        </a>
+        
+        <a href="/cancel/<%= order._id %>".
+                class='w-full block text-center  bg-red-600
+                text-white py-2 rounded hover:bg-red-700'>
+          cancel Order
+        </a>
+        
+        
+        </div>
+      
       <% } %>
     </div>
   <% }) %>
+  
+  </div>
 </main>
 
+<%- include('partials/footer') %>

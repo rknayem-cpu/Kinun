@@ -958,6 +958,33 @@ router.get('/status/:id', async (req, res) => {
 })
 
 
+router.get('/deliver/:id', async (req, res) => {
+    try {
+        const id = req.params.id
+        const order = await Order.findByIdAndUpdate(id, {
+            status: 'delivered'
+        }, { new: true })
+
+        res.redirect('/admin/orders')
+    } catch (error) {
+        console.error(error)
+        res.status(500).send('Server Error')
+    }
+})
+
+
+router.get('/cancel/:id', async (req, res) => {
+    try {
+        const id = req.params.id
+        const order = await Order.findByIdAndDelete(id)
+        res.redirect('/admin/orders')
+    } catch (error) {
+        console.error(error)
+        res.status(500).send('Server Error')
+    }
+})
+
+
 
 // Logout
 router.get('/logout', (req, res) => {
