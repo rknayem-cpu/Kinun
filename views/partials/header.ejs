@@ -64,6 +64,12 @@
             align-items: center;
             justify-content: center;
         }
+        
+        .sidebar ul li:hover{
+        
+        background:rgba(50,50,50,0.8);
+        
+        }
     </style>
 </head>
 <body class="bg-gray-800">
@@ -100,24 +106,24 @@
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <ul class="w-full pt-16 text-white">
-            <li class="nav-item text-lime-400 p-4"><a href="/" class="text-xl flex items-center gap-3"><i class="fas fa-home"></i>Home</a></li>
+            <li class="nav-item text-lime-400 p-4"><a href="/" class="text-lg flex items-center gap-3"><i class="fas fa-home"></i>Home</a></li>
             <% if (isLoggedIn) { %>
-                <li class="nav-item text-red-400  p-4"><a href="/profile" class="text-xl flex items-center gap-3"><i class="fas fa-user"></i>Profile</a></li>
+                <li class="nav-item text-red-400  p-4"><a href="/profile" class="text-lg flex items-center gap-3"><i class="fas fa-user"></i>Profile</a></li>
             <% } else { %>
-                <li class="nav-item text-red-400 p-4"><a href="/login" class="text-xl flex items-center gap-3"><i class="fas fa-key"></i>Login</a></li>
+                <li class="nav-item text-red-400 p-4"><a href="/login" class="text-lg flex items-center gap-3"><i class="fas fa-key"></i>Login</a></li>
             <% } %>
 
-            <li class="nav-item text-teal-300  p-4"><a href="/search" class="text-xl flex items-center gap-3"><i class="fas fa-search"></i>Search</a></li>
+            <li class="nav-item text-teal-300  p-4"><a href="/search" class="text-lg flex items-center gap-3"><i class="fas fa-search"></i>Search</a></li>
             
             <li class="nav-item text-teal-300  p-4">
             <a href="/order-track" 
-            class="text-xl flex items-center gap-3">
+            class="text-lg flex items-center gap-3">
             <i class="fas fa-box-open"></i>Order-track</a>
             </li>
 
 <li class="nav-item text-green-600  p-4">
             <a href="/viewcategory".
-            class="text-xl flex items-center gap-3">
+            class="text-lg flex items-center gap-3">
             <i class="fa fa-list-alt"></i>Categorys</a>
             </li>
 

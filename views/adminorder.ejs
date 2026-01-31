@@ -2,11 +2,25 @@
 
 <main class='p-4 max-w-full '>
  
- <p  class='text-center text-3xl text-white mb-5'><%= orders.length %> Orders</p>
+ <p  class='text-center text-3xl text-white mb-3'><%= orders.length %> Orders</p>
  
  
+<%
+  const deliveredOrders = orders.filter(order => order.status === "delivered");
+%>
+ 
+<%
+  const processOrders = orders.filter(order => order.status === "processing");
+%>
+<div class="flex justify-between gap-2 items-center border-t border-green-300">
+<p class="text-green-500 text-center  p-3 "><%= deliveredOrders.length %> orders delivered</p>
 
-<div class='grid grid-cols-1 md:grid-cols-3  xl: grid-cols-4 gap-4'>
+<p class="text-blue-500 border-l border-orange-500 pl-5"><%= processOrders.length %> order processing</p>
+
+
+</div>
+
+<div class='grid grid-cols-1 md:grid-cols-3  xl:grid-cols-4 gap-4'>
 
 
   <% orders.forEach(order=>{ %>
@@ -58,6 +72,9 @@
                 text-white py-2 rounded hover:bg-green-700'>
           Confirm Order
         </a>
+      <% } else if(order.status === "delivered"){ %>
+      <span></span>
+      
       <% } else{ %>
       <div class="w-full flex justify-between gap-3">
       <a href="/deliver/<%= order._id %>".
